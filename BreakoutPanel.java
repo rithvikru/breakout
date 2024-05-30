@@ -8,14 +8,15 @@ public class BreakoutPanel extends JPanel
    private LockScreenPanel lockScreen;
    private LevelScreenPanel levelScreen;
 
-   private EasyScreenPanel easyScreen;
-   private MediumScreenPanel mediumScreen;
-   private HardScreenPanel hardScreen;
-                                         
+   private GameEnginePanel easyScreen;
+   private GameEnginePanel mediumScreen;
+   private GameEnginePanel hardScreen;
+
    public BreakoutPanel(JFrame f) 
    {
       myOwner = f;
       
+      setPreferredSize(new Dimension(1000, 600));
       setLayout(new BorderLayout());
       
       lockScreen = new LockScreenPanel(this); 
@@ -23,9 +24,9 @@ public class BreakoutPanel extends JPanel
       
       levelScreen = new LevelScreenPanel(this);
 
-      /*easyScreen = new EasyScreenPanel(this);*/
-      mediumScreen = new MediumScreenPanel(this);
-      hardScreen = new HardScreenPanel(this);
+      easyScreen = new GameEnginePanel(this, "easy");
+      mediumScreen = new GameEnginePanel(this, "medium");
+      hardScreen = new GameEnginePanel(this, "hard");
    }
    
    public void openLevels()
@@ -37,30 +38,16 @@ public class BreakoutPanel extends JPanel
       myOwner.pack(); 
    }
 
-   public void openEasy(BreakoutPanel b)
+   public void openGame(String difficulty)
    {
       remove(levelScreen);
-      add(new EasyScreenPanel(b));
+      if (difficulty == "easy") { add(easyScreen); }
+      else if (difficulty == "medium") { add(mediumScreen); }
+      else { add(hardScreen); }
+
       repaint();
       revalidate();
       myOwner.pack(); 
    }
 
-   public void openMedium()
-   {
-      remove(levelScreen);
-      add(mediumScreen);
-      repaint();
-      revalidate();
-      myOwner.pack(); 
-   }
-
-   public void openHard()
-   {
-      remove(levelScreen);
-      add(hardScreen);
-      repaint();
-      revalidate();
-      myOwner.pack(); 
-   }
 }

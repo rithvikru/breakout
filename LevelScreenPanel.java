@@ -40,7 +40,7 @@ public class LevelScreenPanel extends JPanel
    {
       public void actionPerformed(ActionEvent e)
       {
-         myOwner.openEasy(); 
+         myOwner.openGame("easy"); 
       }
    }
 
@@ -48,7 +48,7 @@ public class LevelScreenPanel extends JPanel
    {
       public void actionPerformed(ActionEvent e)
       {
-         myOwner.openMedium(); 
+         myOwner.openGame("medium"); 
       }
    }
 
@@ -56,7 +56,7 @@ public class LevelScreenPanel extends JPanel
    {
       public void actionPerformed(ActionEvent e)
       {
-         myOwner.openHard();
+         myOwner.openGame("hard");
       }
    }
 }
