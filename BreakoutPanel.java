@@ -23,7 +23,7 @@ public class BreakoutPanel extends JPanel
       
       levelScreen = new LevelScreenPanel(this);
 
-      easyScreen = new EasyScreenPanel(this);
+      /*easyScreen = new EasyScreenPanel(this);*/
       mediumScreen = new MediumScreenPanel(this);
       hardScreen = new HardScreenPanel(this);
    }
@@ -37,10 +37,10 @@ public class BreakoutPanel extends JPanel
       myOwner.pack(); 
    }
 
-   public void openEasy()
+   public void openEasy(BreakoutPanel b)
    {
       remove(levelScreen);
-      add(easyScreen);
+      add(new EasyScreenPanel(b));
       repaint();
       revalidate();
       myOwner.pack(); 
