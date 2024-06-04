@@ -2,7 +2,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
+
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Ball extends AbstractBall implements Animatable
 {
@@ -10,37 +12,39 @@ public class Ball extends AbstractBall implements Animatable
    private int x;
    private int y;
    private int r;
-   private int dX;
-   private int dY;
+   private double dX;
+   private double dY;
+
    public Ball(String mode)
    {
+      Random random = new Random();
       r = 10;
       x = 250;
       y = 250;
       c = Color.WHITE;
       if (mode == "easy"){
-        dX = 3;
-        dY = 3;
+        dX = 2 + (3 - 2) * random.nextDouble();
+        dY = 2 + (3 - 2) * random.nextDouble();
       }
       else if (mode == "medium"){
-        dX = 4;
-        dY = 4;
+        dX = 3 + (4 - 3) * random.nextDouble();
+        dY = 3 + (4 - 3) * random.nextDouble();
       }
       else {
-        dX = 5;
-        dY = 5;
+        dX = 4 + (5 - 4) * random.nextDouble();
+        dY = 4 + (5 - 4) * random.nextDouble();
       }
    }
-   public void setdX(int k){
+   public void setDX(double k){
       dX = k;
    }
-   public void setdY(int k){
+   public void setDY(double k){
       dY = k;
    }
-   public int getdX(){
+   public double getDX(){
       return dX;
    } 
-   public int getdY(){
+   public double getDY(){
       return dY;
    } 
    public int getRadius()
@@ -77,6 +81,29 @@ public class Ball extends AbstractBall implements Animatable
    {
       c = cValue;
    }
+
+   public boolean collide(Paddle paddle)
+   {
+      int thisX = getX();
+      int thisY = getY();
+      
+      int otherX = paddle.getX();
+      int otherY = 500;
+      
+      return (thisX-otherX > 0 && thisX-otherX < 150 && Math.abs(thisY-otherY) < r);
+   }
+
+   public boolean hitBlock(AbstractBlock block)
+   {
+      int thisX = getX();
+      int thisY = getY();
+      
+      int otherX = block.getX();
+      int otherY = block.getY();
+      
+      return (thisX-otherX > 0 && thisX-otherX < 75 && Math.abs(thisY-otherY) < r);
+   }
+
    public void step(){
       if (getX()< 0 || getX() > (1000-getRadius())){
          dX *= -1;
@@ -84,8 +111,8 @@ public class Ball extends AbstractBall implements Animatable
       if (getY()< 0 || getY() > (600-getRadius())){
          dY *= -1;
       }
-      setX(getX() + dX);
-      setY(getY() + dY);
+      setX((int)(getX() + dX));
+      setY((int)(getY() + dY));
    } 
    public void drawMe(Graphics g)
    {

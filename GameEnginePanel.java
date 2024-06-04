@@ -5,6 +5,15 @@ import javax.swing.*;
 import java.awt.image.*;
 import java.util.ArrayList;
 
+import java.io.File;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+
 public class GameEnginePanel extends JPanel {
   private BreakoutPanel myOwner;
 
@@ -19,6 +28,7 @@ public class GameEnginePanel extends JPanel {
   private ArrayList <Animatable> animationObjects;
 
   private JButton playButton;
+  private JLabel welcomeText;
 
   private int currFrame;
 
@@ -26,10 +36,17 @@ public class GameEnginePanel extends JPanel {
   private boolean right;
   
   private Paddle paddle;
+  private Ball ball;
   
   private int dX;
 
+  private int[][] matrix;
+  private String d;
+
+  private AbstractBlock[][] board;
+
   public GameEnginePanel(BreakoutPanel p, String difficulty) {
+    d = difficulty;
     if (difficulty == "hard") {
       dX = 4;
     }
@@ -37,12 +54,18 @@ public class GameEnginePanel extends JPanel {
       dX = 5;
     }
 
+    welcomeText = new JLabel(difficulty.substring(0, 1).toUpperCase() + difficulty.substring(1) + " Mode");
+    welcomeText.setFont(new Font("Arial", Font.BOLD, 69));
+    welcomeText.setForeground(Color.WHITE);
+    welcomeText.setHorizontalAlignment(JLabel.CENTER);
+
     playButton = new JButton("Start game");
     playButton.addActionListener(new PlayListener());
     playButton.setBackground(Color.WHITE);
 
     setLayout(new BorderLayout());
     add(playButton, BorderLayout.SOUTH);
+    add(welcomeText, BorderLayout.CENTER);
 
     currFrame = 0;
     myImage = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
@@ -52,7 +75,7 @@ public class GameEnginePanel extends JPanel {
 
     animationObjects = new ArrayList <Animatable> (); 
 
-    Animatable ball = new Ball(difficulty);
+    ball = new Ball(difficulty);
     animationObjects.add(ball);
     paddle = new Paddle();
     animationObjects.add(paddle);
@@ -63,6 +86,35 @@ public class GameEnginePanel extends JPanel {
     
     left = false;
     right = false; //at the moment, the user is not pushing down_2 the left arrow key, so "false"
+
+    matrix = new int[3][10];
+    if (d == "easy") {
+      board = new EasyBlock[3][10];
+      for (int r = 0; r < 3; r++) {
+        for (int c = 0; c < 10; c++) {
+          matrix[r][c] = 1;
+          board[r][c] = new EasyBlock(85*c + 80, r * 50);
+        }
+      }
+    }
+    else if (d == "medium") {
+      board = new MediumBlock[3][10];
+      for (int r = 0; r < 3; r++) {
+        for (int c = 0; c < 10; c++) {
+          matrix[r][c] = 2;
+          board[r][c] = new MediumBlock(85*c + 80, r * 50);
+        }
+      }
+    }
+    else {
+      board = new HardBlock[3][10];
+      for (int r = 0; r < 3; r++) {
+        for (int c = 0; c < 10; c++) {
+          matrix[r][c] = 3;
+          board[r][c] = new HardBlock(85*c + 80, r * 50);
+        }
+      }
+    }
 
   }
 
@@ -75,17 +127,86 @@ public class GameEnginePanel extends JPanel {
     myBuffer.setColor(BACKGROUND);
     myBuffer.fillRect(0, 0, WIDTH, HEIGHT);
 
-    for (Animatable animationObject: animationObjects) {
-      animationObject.step(); 
-      animationObject.drawMe(myBuffer); 
+    for (int r = 0; r < 3; r++) {
+      for (int c = 0; c < 10; c++) {
+        if (matrix[r][c] >= 1) {
+          board[r][c].drawMe(myBuffer);
+        }
+      }
     }
 
+    for (Animatable animationObject: animationObjects) {
+      animationObject.step(); 
+    }
+
+    boolean collided = false;
+    if (ball.collide(paddle))
+    {
+      collided = true;
+    }
+
+    if (collided)
+    {
+      ball.setDX(ball.getDX());
+      ball.setDY(-ball.getDY());
+    }
+
+
+    boolean gameOver;
+    int sum = 0;
+
+    for (int r = 0; r < 3; r++) {
+      for (int c = 0; c < 10; c++) {
+        if (matrix[r][c] >= 1 && ball.hitBlock(board[r][c])) {
+          matrix[r][c]--;
+          ball.setDY(-ball.getDY());
+          /*playSound();*/
+        }
+        if (matrix[r][c] > 0) {
+          gameOver= false;
+        }
+        sum+=matrix[r][c];
+      }
+    }
+
+    gameOver = (sum == 0) ? true : false;
+
+    if (gameOver) {
+      myBuffer.setFont(new Font("Serif", Font.BOLD, 50));
+      myBuffer.setColor(Color.WHITE);
+      myBuffer.drawString("You Won!", WIDTH / 2 - 100, HEIGHT / 2);
+      myBuffer.drawString("Score: " + currFrame, WIDTH / 2 - 150, HEIGHT / 2 + 60);
+      saveScoreToFile(currFrame, d); // Save the score to the file
+      t.stop();
+    } else {
+      myBuffer.setFont(new Font("Serif", Font.BOLD | Font.ITALIC, 30));
+      myBuffer.setColor(Color.WHITE);
+      myBuffer.drawString(String.valueOf(currFrame), 25, 50);
+      currFrame++;
+    }
+
+
+    for (int r = 0; r < 3; r++) {
+      for (int c = 0; c < 10; c++) {
+        if (matrix[r][c] >= 1 && ball.hitBlock(board[r][c])) {
+            matrix[r][c]--;
+            ball.setDY(-ball.getDY());
+        }
+      }
+    }
+
+
+    // show frames
     myBuffer.setFont(new Font("Serif", Font.BOLD | Font.ITALIC, 30)); 
     myBuffer.setColor(Color.WHITE);
     myBuffer.drawString(String.valueOf(currFrame), 25, 50);
     currFrame++;
 
-    System.out.println(currFrame);
+    
+    for (Animatable animationObject: animationObjects)
+    {
+      animationObject.drawMe(myBuffer);
+    }
 
     repaint();
   }
@@ -104,45 +225,62 @@ public class GameEnginePanel extends JPanel {
       t = new Timer(5, new AnimationListener());
 
       t.start();
+      remove(welcomeText);
       remove(playButton);
 
     }
   }
 
-  private class Key extends KeyAdapter //Make ONE class that EXTENDS KeyAdapter, and tell it what to do when keys are pressed or released
+  private class Key extends KeyAdapter 
   {
-    public void keyPressed(KeyEvent e) //Make ONE method for key presses; this is overridden, and will be called whenever a key is pressed
+    public void keyPressed(KeyEvent e) 
     {
-        if(e.getKeyCode() == KeyEvent.VK_LEFT && !left) //e.getKeyCode() lets us retrieve which key was just pushed.  !left lets us know the user isn't already holding the left arrow down_2.
+        if(e.getKeyCode() == KeyEvent.VK_LEFT && !left) 
         {
-          paddle.setDX(paddle.getDX() - dX);  //Subtract 2 from Square's dX value, effectively setting the value to 0.
-          left = true;  //Now, the user is holding down_2 the left key, so set this to true.  Why do we need to keep track of this?  So that holding down_2 one (or even two) key works as expected.
+          paddle.setDX(paddle.getDX() - dX);  
+          left = true;  
         }
 
         
-        if(e.getKeyCode() == KeyEvent.VK_RIGHT && !right) //e.getKeyCode() lets us retrieve which key was just pushed.  !left lets us know the user isn't already holding the left arrow down_2.
+        if(e.getKeyCode() == KeyEvent.VK_RIGHT && !right) 
         {
-          paddle.setDX(paddle.getDX() + dX);  //Subtract 2 from Square's dX value, effectively setting the value to 0.
-          right = true;  //Now, the user is holding down_2 the left key, so set this to true.  Why do we need to keep track of this?  So that holding down_2 one (or even two) key works as expected.
+          paddle.setDX(paddle.getDX() + dX);  
+          right = true;  
         }
 
     }
     
-    public void keyReleased(KeyEvent e) //Also overridden; ONE method that will be called any time a key is released
+    public void keyReleased(KeyEvent e) 
     {  
-        if(e.getKeyCode() == KeyEvent.VK_LEFT) // If the user lets go of the left arrow
+        if(e.getKeyCode() == KeyEvent.VK_LEFT) 
         {
-          paddle.setDX(paddle.getDX() + dX);  //Again: add 2, don't set to 0 precisely.  
-          left = false;  //User is no longer holding the left key, so set this back to false.
+          paddle.setDX(paddle.getDX() + dX);  
+          left = false;  
         }
 
-        if(e.getKeyCode() == KeyEvent.VK_RIGHT) // If the user lets go of the left arrow
+        if(e.getKeyCode() == KeyEvent.VK_RIGHT) 
         {
-          paddle.setDX(paddle.getDX() - dX);  //Again: add 2, don't set to 0 precisely.  
-          right = false;  //User is no longer holding the left key, so set this back to false.
+          paddle.setDX(paddle.getDX() - dX);  
+          right = false;  
         }
         
     }
   }
+
+  private void saveScoreToFile(int score, String mode) {
+    String filename = "scores.txt";
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true))) {
+        writer.write("Mode: " + mode + ", Score: " + score + "\n");
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+  }
+  /* public void playSound() {
+    File f = new File("./boom.mp3");
+    AudioInputStream audioIn = AudioSystem.getAudioInputStream(f.toURI().toURL());  
+    Clip clip = AudioSystem.getClip();
+    clip.open(audioIn);
+    clip.start();
+  } */
 
 }

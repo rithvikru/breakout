@@ -6,10 +6,10 @@ abstract class AbstractBall
    private int dX;
    private int dY;
    private int level;
-   public abstract void setdX(int k);
-   public abstract void setdY(int k);
-   public abstract int getdX();
-   public abstract int getdY();
+   public abstract void setDX(double k);
+   public abstract void setDY(double k);
+   public abstract double getDX();
+   public abstract double getDY();
    public abstract int getRadius();
    public abstract int getX();
    public abstract int getY();

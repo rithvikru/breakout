@@ -1,0 +1,3 @@
+Mode: hard, Score: 31316
+Mode: medium, Score: 7210
+Mode: hard, Score: 29360
