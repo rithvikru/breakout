@@ -11,5 +11,8 @@ public class BreakoutDriver
     frame.setContentPane(new BreakoutPanel(frame));
     frame.pack();
     frame.setVisible(true);
+
+    MusicPlayer musicPlayer = new MusicPlayer();
+    musicPlayer.playMusic();
   }
 }

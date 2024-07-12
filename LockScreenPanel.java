@@ -24,6 +24,10 @@ public class LockScreenPanel extends JPanel
       JButton levelSelector = new JButton("Play!");
       levelSelector.addActionListener(new LevelsListener());
       add(levelSelector, BorderLayout.SOUTH);
+
+      JButton rulesButton = new JButton("Open rules");
+      rulesButton.addActionListener(new RulesListener());
+      add(rulesButton, BorderLayout.NORTH);
    }
    
    private class LevelsListener implements ActionListener
@@ -31,6 +35,14 @@ public class LockScreenPanel extends JPanel
       public void actionPerformed(ActionEvent e)
       {
          myOwner.openLevels(); 
+      }
+   }
+
+   private class RulesListener implements ActionListener
+   {
+      public void actionPerformed(ActionEvent e)
+      {
+         myOwner.openRules(); 
       }
    }
 }

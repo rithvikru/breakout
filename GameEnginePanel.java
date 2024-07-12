@@ -5,11 +5,6 @@ import javax.swing.*;
 import java.awt.image.*;
 import java.util.ArrayList;
 
-import java.io.File;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -155,12 +150,13 @@ public class GameEnginePanel extends JPanel {
     boolean gameOver;
     int sum = 0;
 
+
     for (int r = 0; r < 3; r++) {
       for (int c = 0; c < 10; c++) {
         if (matrix[r][c] >= 1 && ball.hitBlock(board[r][c])) {
           matrix[r][c]--;
           ball.setDY(-ball.getDY());
-          /*playSound();*/
+          System.out.println("Collided");
         }
         if (matrix[r][c] > 0) {
           gameOver= false;
@@ -195,6 +191,8 @@ public class GameEnginePanel extends JPanel {
       }
     }
 
+    paddle.setX((int)MouseInfo.getPointerInfo().getLocation().getX()-250);
+    System.out.println(MouseInfo.getPointerInfo().getLocation().getX()-250);
 
     // show frames
     myBuffer.setFont(new Font("Serif", Font.BOLD | Font.ITALIC, 30)); 

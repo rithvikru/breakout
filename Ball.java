@@ -101,7 +101,7 @@ public class Ball extends AbstractBall implements Animatable
       int otherX = block.getX();
       int otherY = block.getY();
       
-      return (thisX-otherX > 0 && thisX-otherX < 75 && Math.abs(thisY-otherY) < r);
+      return (thisX-otherX > 0 && thisX-otherX < 75 && Math.abs(thisY-otherY-30) < r);
    }
 
    public void step(){

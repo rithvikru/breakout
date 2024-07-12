@@ -7,6 +7,7 @@ public class BreakoutPanel extends JPanel
    
    private LockScreenPanel lockScreen;
    private LevelScreenPanel levelScreen;
+   private RulesScreenPanel rulesScreen;
 
    private GameEnginePanel easyScreen;
    private GameEnginePanel mediumScreen;
@@ -23,6 +24,7 @@ public class BreakoutPanel extends JPanel
       add(lockScreen);
       
       levelScreen = new LevelScreenPanel(this);
+      rulesScreen = new RulesScreenPanel(this);
 
       easyScreen = new GameEnginePanel(this, "easy");
       mediumScreen = new GameEnginePanel(this, "medium");
@@ -33,6 +35,15 @@ public class BreakoutPanel extends JPanel
    {
       remove(lockScreen);
       add(levelScreen);
+      repaint();
+      revalidate();
+      myOwner.pack(); 
+   }
+
+   public void openRules()
+   {
+      remove(lockScreen);
+      add(rulesScreen);
       repaint();
       revalidate();
       myOwner.pack(); 
